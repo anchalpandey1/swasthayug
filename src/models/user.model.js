@@ -14,11 +14,12 @@ const userSchema = new Schema(
             trim: true,
             validate: [validator.isEmail, "Invalid Email Address"],
         },
-        fullName: {
+        username: {
             type: String,
-            required: [true, "fullName is required"],
+            required: [true, "username is required"],
             trim: true,
             index: true,
+            unique:true,
         },      
         password: {
             type: String,
@@ -27,7 +28,14 @@ const userSchema = new Schema(
         profileUrl: {
             type: String,
         },
-               
+          gender:{
+            type:String,
+            enum:['male','female','other']
+          },   
+          country:{
+            type:String,
+            enum:['india' , 'other']
+          },  
         refreshToken: {
             type: String,
         },

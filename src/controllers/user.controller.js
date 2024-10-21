@@ -26,10 +26,10 @@ const generateAccessAndRefereshTokens = async (userId) => {
 
 //user Registeration
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { username, email, password ,gender,country} = req.body;
 
   // Validate input fields
-  if ([fullName, email, password].some(field => field?.trim() === "")) {
+  if ([username, email, password,gender,country].some(field => field?.trim() === "")) {
       throw new ApiError(400, "All fields are required");
   }
 
@@ -57,10 +57,12 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // Create a new user instance
   const user = new User({
-      fullName,
+      username,
       email,
       password,
       profileUrl: imgUrl || null, // Save image/PDF URL if exists
+      gender,
+      country,
   });
 
   // Save the new user to the database (password is automatically hashed due to pre-save hook)
@@ -137,6 +139,23 @@ const loginUser = asyncHandler(async (req, res) => {
             )
         );
 });
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    // Get the authenticated user's ID from the request
+    const id = req.user._id;
+
+    // Find the user by ID
+    const user = await User.findById(id).select("-password -refreshToken");
+
+    // Check if the user exists
+    if (!user) {
+        return res.status(404).json(new ApiError(404, null, "User Not Found"));
+    }
+
+    // Return the user's details
+    return res.status(200).json(new ApiResponse(200, user,"user", "User retrieved successfully"));
+});
+
 
 //logout User
 const logoutUser = asyncHandler(async (req, res) => {
@@ -301,6 +320,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 export {
     registerUser,
     loginUser,
+    getCurrentUser,
     logoutUser,
     deleteAccount,
     refreshAccessToken, 
